@@ -1,0 +1,26 @@
+.header {
+	-webkit-transition:
+		top 1s linear,
+		margin-left 1s linear,
+		height 1s linear,
+		width 1s linear
+}
+.title {
+	-webkit-transition:
+		left 1s linear,
+		top 1s linear,
+		margin-left 1s linear,
+		font-size 1s linear
+}
+.nav {
+	-webkit-transition:
+		left 1s linear,
+		top 1s linear,
+		margin-left 1s linear,
+		height 1s linear
+}
+.body {
+	-webkit-transition:
+		top 1s linear,
+		height 1s linear
+}
