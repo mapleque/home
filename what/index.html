@@ -2,13 +2,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>what</title>
-<input id="eat" type="button" value="吃啥">
-<input id="eat-what">
-<script>
-document.getElementById("eat").onclick = function(){
-	var eat_list = "紫菜包饭、三明治、好炖、沙拉、卷饼、饭团、鸡蛋仔、牛筋面".split("、") ;
-	var seed = Math.random();
-	var index = Math.floor(seed * eat_list.length);
-	document.getElementById("eat-what").value = eat_list[index];
-};
-</script>
+<style>
+html, body{
+	margin:0;
+	padding:0;
+}
+.banner{
+	display:block;
+	width:100%;
+	height:100%;
+	background:url(./img/banner.gif) no-repeat center;
+	background-size:100%;
+}
+</style>
+<a href="result.html" class="banner"></a>
