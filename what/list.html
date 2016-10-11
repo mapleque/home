@@ -86,23 +86,24 @@
 		}
 		if (eat_list.length === 0) {
 			$list.innerHTML = '<tr><td colspan="3">data empty</td></tr>';
+		} else {
+			var addEventListener = function($root){
+				$cols = $root.getElementsByTagName('tr');
+				for (var i = 0; i < $cols.length; i++) {
+					$rows = $cols[i].getElementsByTagName('td');
+					var id = parseInt($rows[0].innerHTML) - 1;
+					$buttons = $rows[2].getElementsByTagName('input');
+					$buttons[0].onclick  = (function(id){
+						return function(){
+							eat_list.splice(id, 1);
+							localStorage.setItem('eat_list',eat_list.join('$#$'));
+							loadList();
+						};
+					})(id);
+				}
+			};
+			addEventListener($list);
 		}
-		var addEventListener = function($root){
-			$cols = $root.getElementsByTagName('tr');
-			for (var i = 0; i < $cols.length; i++) {
-				$rows = $cols[i].getElementsByTagName('td');
-				var id = parseInt($rows[0].innerHTML) - 1;
-				$buttons = $rows[2].getElementsByTagName('input');
-				$buttons[0].onclick  = (function(id){
-					return function(){
-						eat_list.splice(id, 1);
-						localStorage.setItem('eat_list',eat_list.join('$#$'));
-						loadList();
-					};
-				})(id);
-			}
-		};
-		addEventListener($list);
 	};
 	loadList();
 	document.getElementById('add').onclick = function(){
