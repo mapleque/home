@@ -20,11 +20,21 @@ span, a {
 	position:absolute;
 }
 .add {
-	height:10%;
-	width:10%;
-	top:0;
-	left:55%;
-	margin-top:17%;
+	height: 0;
+	width: 2.2%;
+	top: 0;
+	left: 58%;
+	margin-top: 19%;
+	padding-top: 2.5%;
+}
+.change {
+	height: 0;
+	width: 26%;
+	top: 0;
+	left: 6%;
+	margin-top: 27%;
+	padding-top: 32%;
+	cursor: pointer;
 }
 .result {
 	height: 0;
@@ -39,17 +49,21 @@ span, a {
 <div class="container">
 <a class="add" href="list.html"></a>
 <span class="result" id="eat-what"></span>
+<span class="change" id="change"></span>
 </div>
 <script>
 (function(){
-	//var eat_list = "紫菜包饭、三明治、好炖、沙拉、卷饼、饭团、鸡蛋仔、牛筋面".split("、") ;
-	var eat_list = localStorage.getItem('eat_list');
-	if (!eat_list) {
-		eat_list = '什么都没有';
-	}
-	eat_list = eat_list.split("$#$");
-	var seed = Math.random();
-	var index = Math.floor(seed * eat_list.length);
-	document.getElementById("eat-what").innerHTML= eat_list[index];
+	var change = function(){
+		var eat_list = localStorage.getItem('eat_list');
+		if (!eat_list) {
+			eat_list = '什么都没有';
+		}
+		eat_list = eat_list.split("$#$");
+		var seed = Math.random();
+		var index = Math.floor(seed * eat_list.length);
+		document.getElementById("eat-what").innerHTML= eat_list[index];
+	};
+	document.getElementById('change').onclick = change;
+	change();
 })();
 </script>
