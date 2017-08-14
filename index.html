@@ -1,21 +1,62 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<meta name="keywords" content="枫雀,枫枝雀自鸣">
-<meta name="description" content="枫雀的个人网站">
+<meta name="keywords" content="枫雀,枫枝雀自鸣,mapleque">
+<meta name="description" content="枫雀的个人站点">
 <title>枫雀-mapleque</title>
-<div class="header">
-	<div class="title">枫枝雀自鸣</div>
-	<div class="nav">
-		<ul>
-			<li><a href="//blog.mapleque.com">博客</a></li>
-			<li><a href="//mahjong.mapleque.com">麻将</a></li>
-			<li><a href="//whenwhere.mapleque.com">望外</a></li>
-			<li><a href="//mapleque.github.io/callendar/callendar.html">台历</a></li>
-			<li><a href="/what">吃啥</a></li>
-			<li><a href="/base642img">base64 to image</a></li>
-		</ul>
-	</div>
-</div>
-<div class="body">
-</div>
-<div class="footer">mapleque @ 2016</div>
+<style>
+html, body {
+    margin:0;
+    padding:0;
+}
+header {
+    position:fixed;
+    width:100%;
+    top:0;
+}
+footer {
+    position:fixed;
+    width:100%;
+    bottom:0;
+    text-align:center;
+    margin:10px 0;
+}
+header h1 {
+    text-align:center;
+}
+</style>
+<header>
+    <h1>枫枝雀自鸣</h1>
+</header>
+<article>
+<canvas id="canvas" style="width:100%;height:100%"></canvas>
+</article>
+<footer id="footer"></footer>
+<script>
+(function() {
+    document.getElementById('footer').innerHTML = 'mapleque @ ' + new Date().getFullYear()
+
+    var canvas = document.getElementById('canvas')
+    canvas.setAttribute("width", window.innerWidth)
+    canvas.setAttribute("height", window.innerHeight)
+    window.onresize = function () {
+        canvas.setAttribute("width", window.innerWidth)
+        canvas.setAttribute("height", window.innerHeight)
+        redrawImage()
+    }
+
+    var context = canvas.getContext('2d')
+
+    img = new Image()
+    img.src = 'icon.jpg'
+    img.onload = function () {
+        redrawImage()
+    }
+    var redrawImage = function () {
+        var imageWidth = img.width
+        var imageHeight = img.height
+        var canvasWidth = canvas.width
+        var canvasHeight = canvas.height
+        context.drawImage(img, canvasWidth/2 - imageWidth/2, canvasHeight/2 - imageHeight/2)
+    }
+})()
+</script>
