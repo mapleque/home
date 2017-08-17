@@ -1,4 +1,5 @@
 html, body {
+  font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
   margin:0;
   padding:0;
 }
@@ -16,5 +17,7 @@ footer {
 }
 header h1 {
   text-align:center;
+  color:#fff;
+  font-size:50px;
 }
 
