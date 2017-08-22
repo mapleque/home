@@ -85,6 +85,8 @@
     var h = canvas.height
     context.fillStyle = '#000'
     context.fillRect(0,0,w,h/2)
+    context.fillStyle = '#fff'
+    context.fillRect(0,h/2,w,h/2)
   }
 
   var drawLogo = function () {
@@ -232,16 +234,91 @@
     */
   }
 
+  var paper = function () {
+    var self = this
+    self.lastTime = new Date()
+    self.lastPos = null
+    this.resize = function () {
+      var w = canvas.width
+      var h = canvas.height
+      self.w = w
+      self.h = h
+      self.data = context.getImageData(0,0,w,h)
+      self.oral = context.getImageData(0,0,w,h).data
+      self.task = []
+      self.clear = []
+    }
+    this.write = function (pos) {
+      // weight depends on during
+      var weight = 5
+      var last = self.lastTime.getTime()
+      self.lastTime = new Date()
+      var current = self.lastTime.getTime()
+      var during = current - last
+      if (during  < 300 || self.lastPos !== null) {
+        // build path from last pos
+        // caculate weight
+        var distance = Math.pow(self.lastPos.x - pos.x,2) + Math.pow(self.lastPos.y - pos.y,2)
+        weight = Math.floor(5 + (3 - Math.sqrt(distance)))
+        weight = weight > 0 ? weight : 1
+      }
+      self.lastPos = pos
+
+      for (var i=-weight; i<weight; i++) {
+        for (var j=-weight; j<weight; j++) {
+          if (i*i + j*j < Math.pow(weight,2)) {
+            var cx = pos.x+i
+            var cy = pos.y+j
+            cx = cx < 0 ? 0 : cx
+            cx = cx > self.w ? self.w : cx
+            var p = (cy*self.w+cx)*4
+            self.task.push(p)
+          }
+        }
+      }
+    }
+    var revers = function (p) {
+      if (p===undefined) return
+      self.data.data[p]=255-self.oral[p]
+      self.data.data[p+1]=255-self.oral[p+1]
+      self.data.data[p+2]=255-self.oral[p+2]
+      self.data.data[p+3]=255
+    }
+    var clear = function (p) {
+      if (p===undefined) return
+      self.data.data[p]=self.oral[p]
+      self.data.data[p+1]=self.oral[p+1]
+      self.data.data[p+2]=self.oral[p+2]
+      self.data.data[p+3]=255
+    }
+    this.flush = function () {
+      for (var i=0;i<130;i++) {
+        var c = self.clear.shift()
+        clear(c)
+        var p = self.task.shift()
+        revers(p)
+        setTimeout(function(p){
+          return function() {
+            self.clear.push(p)
+          }
+        }(p),300)
+      }
+      context.putImageData(self.data,0,0)
+    }
+  }
+  var pen = new paper()
   var draw = function () {
     drawBackground()
     // drawImage()
     drawLogo()
     drawBlog()
     drawGit()
+    pen.resize()
   }
+  draw()
+  setInterval(pen.flush, 20)
 
   // event listener
-
   var currentLink = ''
 
   canvas.onmousemove = function (t) {
@@ -268,6 +345,7 @@
     if (!isP) {
       normal()
     }
+    pen.write(pos)
   }
 
   canvas.onmousedown = function () {
