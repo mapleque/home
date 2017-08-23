@@ -1,11 +1,8 @@
 (function() {
   document.getElementById('footer').innerHTML = 'mapleque @ ' + new Date().getFullYear()
 
-  var scales = {
-    image: {}
-  }
+  var scales = {}
   var links = {
-    image: '//blog.mapleque.com',
     git: '//github.com/mapleque',
     blog: '//blog.mapleque.com',
   }
@@ -21,64 +18,6 @@
 
   var context = canvas.getContext('2d')
 
-  // draw something
-
-  img = new Image()
-  img.src = 'icon.jpg'
-  img.onload = function () {
-    draw()
-  }
-  var drawImage = function () {
-    var imageWidth = img.width
-    var imageHeight = img.height
-    var canvasWidth = canvas.width
-    var canvasHeight = canvas.height
-    var posx = canvasWidth/2 - imageWidth/2
-    var posy = canvasHeight/2 - imageHeight/2
-    context.drawImage(img, posx, posy)
-    scales.image = {
-      x: posx,
-      y: posy,
-      w: imageWidth,
-      h: imageHeight
-    }
-  }
-
-  /*
-  // linear background
-  var drawBackground = function () {
-    var w = canvas.width
-    var h = canvas.height
-    var fillbk = function (linears) {
-      var oldOp = context.globalCompositeOperation
-      context.globalCompositeOperation='lighter'
-      linears.forEach(function (e) {
-        var gradient = context.createLinearGradient(e[0], e[1], e[2], e[3])
-        e[4].forEach(function (a) {
-          gradient.addColorStop(a[0], a[1])
-        })
-        context.fillStyle = gradient
-        context.fillRect(e[5][0],e[5][1],e[5][2],e[5][3])
-      })
-      context.globalCompositeOperation=oldOp
-    }
-    var sw = h*w*h/Math.pow(Math.sqrt(w*w+h*h),2)
-    var sh = sw * w / h
-    var linears = [
-      [0,0,sw,sh, [
-        [0,'#000'],
-        [1,'#fff'],
-        [1,'#000']
-      ],[0,0,w,h]],
-      [w,h,w-sw,h-sh, [
-        [0,'#000'],
-        [1,'#fff'],
-        [1,'#000']
-      ],[0,0,w,h]]
-    ]
-    fillbk(linears)
-  }
-  */
   // binary background
   var drawBackground = function () {
     var w = canvas.width
@@ -238,6 +177,7 @@
     var self = this
     self.lastTime = new Date()
     self.lastPos = null
+    self.lastWeight = 10
     this.resize = function () {
       var w = canvas.width
       var h = canvas.height
@@ -249,33 +189,74 @@
       self.clear = []
     }
     this.write = function (pos) {
-      // weight depends on during
-      var weight = 5
-      var last = self.lastTime.getTime()
-      self.lastTime = new Date()
-      var current = self.lastTime.getTime()
-      var during = current - last
-      if (during  < 300 || self.lastPos !== null) {
-        // build path from last pos
-        // caculate weight
-        var distance = Math.pow(self.lastPos.x - pos.x,2) + Math.pow(self.lastPos.y - pos.y,2)
-        weight = Math.floor(5 + (3 - Math.sqrt(distance)))
-        weight = weight > 0 ? weight : 1
-      }
-      self.lastPos = pos
-
-      for (var i=-weight; i<weight; i++) {
-        for (var j=-weight; j<weight; j++) {
-          if (i*i + j*j < Math.pow(weight,2)) {
-            var cx = pos.x+i
-            var cy = pos.y+j
-            cx = cx < 0 ? 0 : cx
-            cx = cx > self.w ? self.w : cx
-            var p = (cy*self.w+cx)*4
-            self.task.push(p)
+      var writePix = function (weight, pos) {
+        for (var i=-weight; i<weight; i++) {
+          for (var j=-weight; j<weight; j++) {
+            if (i*i + j*j < Math.pow(weight,2)) {
+              var cx = pos.x+i
+              var cy = pos.y+j
+              cx = cx < 0 ? 0 : cx
+              cx = cx > self.w ? self.w : cx
+              var p = (cy*self.w+cx)*4
+              self.task.push(p)
+            }
           }
         }
       }
+
+      // weight depends on during
+      var now = new Date()
+      var weight = 10
+      var last = self.lastTime.getTime()
+      var current = now.getTime()
+      var during = current - last
+      if (during  < 300 || self.lastPos !== null) {
+        // caculate weight
+        var distance = Math.pow(self.lastPos.x - pos.x,2) + Math.pow(self.lastPos.y - pos.y,2)
+        weight = Math.floor(weight + (weight/2 - Math.sqrt(distance)))
+        weight = weight > 0 ? weight : 2
+        // build path from last pos
+        var minx = self.lastPos.x
+        var maxx = pos.x
+        var stepx = 1
+        if (maxx < minx) {
+          stepx = -1
+        }
+        var miny = self.lastPos.y
+        var maxy = pos.y
+        var stepy = 1
+        if (maxy < miny) {
+          stepy = -1
+        }
+        var delta = (maxx-minx)/(maxy-miny)
+        for (var x=minx;x-maxx!=0;x+=stepx) {
+          var mind = Math.abs(delta)
+          var tmppos = {x:x,y:miny}
+          for (var y=miny;y-maxy!=0;y+=stepy) {
+            var tmpd = Math.abs(delta-(x-minx)/(y-miny))
+            if (mind > tmpd) {
+              mind = tmpd
+              tmppos.y = y
+            }
+          }
+          var tmpweight = Math.round(self.lastWeight + (weight - self.lastWeight) * (x-minx)/(maxx-minx))
+          writePix(tmpweight, tmppos)
+        }
+        if (delta === 0) {
+          var x = minx
+          for (var y=miny;y-maxy!=0;y+=stepy) {
+            var tmpweight = Math.round(self.lastWeight + (weight - self.lastWeight) * (y-miny)/(maxy-miny))
+            writePix(tmpweight, {x:x,y:y})
+          }
+        }
+        console.log(self.lastWeight, self.lastPos,weight,pos)
+        writePix(weight,pos)
+      }
+
+      self.lastTime = now
+      self.lastPos = pos
+      self.lastWeight = weight
+
     }
     var revers = function (p) {
       if (p===undefined) return
@@ -292,16 +273,21 @@
       self.data.data[p+3]=255
     }
     this.flush = function () {
-      for (var i=0;i<130;i++) {
+      var exist = {}
+      for (var i=0;i<2000;i++) {
+        var p = self.task.shift()
+        // must sigle p never revers
+        if (!exist[p]) {
+          revers(p)
+          exist[p] = true
+        }
         var c = self.clear.shift()
         clear(c)
-        var p = self.task.shift()
-        revers(p)
         setTimeout(function(p){
           return function() {
             self.clear.push(p)
           }
-        }(p),300)
+        }(p),500)
       }
       context.putImageData(self.data,0,0)
     }
@@ -309,7 +295,6 @@
   var pen = new paper()
   var draw = function () {
     drawBackground()
-    // drawImage()
     drawLogo()
     drawBlog()
     drawGit()
