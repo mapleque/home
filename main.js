@@ -426,7 +426,7 @@
     return pos.x > scale.x && pos.x < scale.x + scale.w && pos.y > scale.y && pos.y < scale.y + scale.h
   }
 
-  document.ondragstart = function() {
-    return false
+  document.body.ontouchmove=function(e){
+    e.preventDefault()
   }
 })()
