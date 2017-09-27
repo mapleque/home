@@ -1,5 +1,5 @@
 (function(){
-  var goDarw = function (context, w, h) {
+  var go = function (context, w, h) {
     var self = this
     self.ctx = context
     self.size = 18
@@ -27,15 +27,10 @@
         }
       }
       return {
-        key: x + ':' + y,
-        cmd:cmd,
         x:x,
         y:y,
         wb:wb,
-        up: (x-1) + ':' + y,
-        down: (x+1) + ':' + y,
-        left: x + ':' + (y-1),
-        right: x + ':' + (y+1)
+        key: x + ':' + y
       }
     }
     self.currentCmd = function (px, py) {
@@ -128,7 +123,7 @@
 
         self.ctx.textAlign = 'center'
         self.ctx.fillStyle = !wb ? '#000' : '#fff'
-        self.ctx.font = 'small-caps 10px arial'
+
         self.ctx.fillText(num,sx,sy+5)
       }
       var drawTry = function (wb, x, y) {
@@ -145,13 +140,11 @@
       }
       drawBoard()
       for (var i=0;i<self.history.length;i++) {
-        var op = self.history[i]
-        if (self.filled[op.key] !== null) {
-          drawChess(i+1, op.wb,op.x,op.y)
-        }
+        var op = decodeCmd(self.history[i])
+        drawChess(i+1, op.wb,op.x,op.y)
       }
       if (self.try !== null) {
-        var op = self.try
+        var op = decodeCmd(self.try)
         drawTry(op.wb,op.x,op.y)
       }
     }
@@ -161,48 +154,35 @@
       self.ch = h
       draw()
     }
-    self.start = function (rule) {
-      self.rule = rule
-      self.rule.subscribe(function(history, filled){
-        self.history = history
-        self.filled = filled
-        draw()
-      })
+    self.start = function () {
       draw()
     }
     self.play = function (cmd) {
-      switch (cmd) {
-        case 'unknow':
-          return
-      }
       var op = decodeCmd(cmd)
       if (self.filled[op.key]) {
         return false
       }
-      if (self.rule.play(op)) {
-        self.try = null
-        self.currentWB = !self.currentWB
-        return true
-      }
-      return false
+      self.history.push(cmd)
+      self.filled[op.key] = op
+      self.try = null
+      draw()
+      self.currentWB = !self.currentWB
+      return true
     }
     self.exec = function (cmd) {
       self.try = null
       switch (cmd) {
         case 'unknow':
           break
-        default :
-          // default is try
+        default : 
           var op = decodeCmd(cmd)
           if (!self.filled[op.key]) {
-            self.try = op
-          } else {
-            self.try = null
+            self.try = cmd
           }
           break
       }
       draw()
     }
   }
-  window.goDraw = goDarw
+  window.go = go
 })()
