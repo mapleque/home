@@ -1,23 +1,22 @@
 (function () {
   var canvas = document.getElementById('canvas')
   var context = canvas.getContext('2d')
-  var w = window.innerWidth
-  var h = window.innerHeight
-
+  var w,h
   var resizeCanvas = function () {
     w = window.innerWidth
     h = window.innerHeight
     canvas.setAttribute("width", w)
     canvas.setAttribute("height", h)
   }
-
   resizeCanvas()
-  var oneGo = new go(context, w, h)
+  
+  var gd = new goDraw(context, w, h)
+  var gr = new goRule()
   window.onresize = function () {
     resizeCanvas()
-    oneGo.resize(w, h)
+    gd.resize(w, h)
   }
-  oneGo.start()
+  gd.start(gr)
   
   var onmove = function (t) {
     if (t.type === 'touchmove') {
@@ -27,8 +26,8 @@
       x: Math.round(t.clientX),
       y: Math.round(t.clientY)
     }
-    var cmd = oneGo.currentCmd(pos.x, pos.y)
-    oneGo.exec(cmd)
+    var cmd = gd.currentCmd(pos.x, pos.y)
+    gd.exec(cmd)
   }
   var onup = function (t) {
     if (t.type === 'touchend') {
@@ -38,8 +37,8 @@
       x: Math.round(t.clientX),
       y: Math.round(t.clientY)
     }
-    var cmd = oneGo.currentCmd(pos.x, pos.y)
-    oneGo.play(cmd)
+    var cmd = gd.currentCmd(pos.x, pos.y)
+    gd.play(cmd)
   }
   canvas.addEventListener('mousemove', onmove, false)
   canvas.addEventListener('touchmove', onmove, false)
@@ -47,5 +46,6 @@
   canvas.addEventListener('touchend', onup, false)
 
   // for debug
-  window.oneGo = oneGo
+  window.gd = gd
+  window.gr = gr
 })()
