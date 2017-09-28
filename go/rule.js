@@ -41,8 +41,8 @@
     var self = this
     self.history = []
     self.filled = {}
-    for (var x=-1;x<19;x++) {
-      for (var y=-1;y<19;y++) {
+    for (var x=-1;x<=19;x++) {
+      for (var y=-1;y<=19;y++) {
         self.filled[x+':'+y] = (x === -1 || x === 19 || y === -1 || y === 19)? true:null
       }
     }
@@ -81,8 +81,25 @@
       dies.forEach(function(die) {
         var curDieSeq = 0
         die.forEach(function(op){
-          if (seq[op.key] > curDieSeq && seq[op.key] !== self.history.length) {
-            curDieSeq = seq[op.key]
+          if (self.filled[op.up].wb != op.wb &&
+            seq[op.up] > curDieSeq &&
+            seq[op.key] !== self.history.length) {
+            curDieSeq = seq[op.up]
+          }
+          if (self.filled[op.down].wb != op.wb &&
+            seq[op.up] > curDieSeq &&
+            seq[op.key] !== self.history.length) {
+            curDieSeq = seq[op.down]
+          }
+          if (self.filled[op.left].wb != op.wb &&
+            seq[op.up] > curDieSeq &&
+            seq[op.key] !== self.history.length) {
+            curDieSeq = seq[op.left]
+          }
+          if (self.filled[op.right].wb != op.wb &&
+            seq[op.up] > curDieSeq &&
+            seq[op.key] !== self.history.length) {
+            curDieSeq = seq[op.right]
           }
         })
         if (curDieSeq > dieSeq) {
