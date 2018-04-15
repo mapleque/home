@@ -1,0 +1,62 @@
+html, body {
+  font-family: PingFangSC-Regular, Verdana, Arial, 微软雅黑, 宋体;
+  font-size:14px;
+  color:#999;
+  margin:0;
+  padding:0;
+}
+
+h1,h2,h3 {
+	margin: 10px 0;
+}
+
+.title {
+	text-align:center;
+}
+
+.title h1 {
+	font-size:30px;
+}
+
+.title h2 {
+	font-size:20px;
+}
+
+ul {
+	margin: 0 10px;
+	padding:0;
+}
+
+li.title {
+	list-style-type: none;
+	padding: 0;
+}
+
+li.title h2 {
+	position:relative;
+	text-align:left;
+}
+
+li.title h2::after {
+	position:absolute;
+	content:"";
+	width:100%;
+	left:0%;
+	top:30px;
+	height:1px;
+	border-bottom:1px solid #ccc;
+}
+
+li.item {
+	margin-left:50px;
+	font-size:16px;
+}
+
+.expirence li.item {
+	list-style-type: none;
+}
+
+.timestamp {
+	text-align: right;
+	margin: 0 10px;
+}
